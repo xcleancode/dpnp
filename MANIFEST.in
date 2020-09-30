@@ -1,3 +1,2 @@
 exclude dpnp/backend/*.cpp
 include dpnp/backend/*.hpp
-include dpnp/conda-recipe/*
