@@ -352,46 +352,71 @@ void custom_var_c(
     _DataType* array1 = reinterpret_cast<_DataType*>(array1_in);
     _ResultType* result = reinterpret_cast<_ResultType*>(result1);
 
-    _ResultType* mean = reinterpret_cast<_ResultType*>(dpnp_memory_alloc_c(1 * sizeof(_ResultType)));
-    custom_mean_c<_DataType, _ResultType>(array1, mean, shape, ndim, axis, naxis);
-    _ResultType mean_val = mean[0];
-
     size_t size = 1;
     for (size_t i = 0; i < ndim; ++i)
     {
         size *= shape[i];
     }
 
-    _ResultType* squared_deviations = reinterpret_cast<_ResultType*>(dpnp_memory_alloc_c(size * sizeof(_ResultType)));
+    for (size_t i = 0; i < size; ++i)
+    {
+        std::cout << "array1[" << i << "] = " << array1[i] << std::endl;
+    }
+    std::cout << "size = " << size << std::endl;
 
-    cl::sycl::range<1> gws(size);
-    auto kernel_parallel_for_func = [=](cl::sycl::id<1> global_id) {
-        size_t i = global_id[0]; /*for (size_t i = 0; i < size; ++i)*/
+    _ResultType* mom2 = reinterpret_cast<_ResultType*>(dpnp_memory_alloc_c(1 * sizeof(_ResultType)));
+
+    if constexpr (std::is_same<_DataType, double>::value || std::is_same<_DataType, float>::value)
+    {
+        // https://docs.oneapi.com/versions/latest/onemkl/mkl-stats-make_dataset.html
+        auto dataset = mkl_stats::make_dataset<mkl_stats::layout::row_major>(1, size, array1);
+
+        for (size_t i = 0; i < size; ++i)
         {
-            _ResultType deviation = static_cast<_ResultType>(array1[i]) - mean_val;
-            squared_deviations[i] = deviation * deviation;
+            std::cout << "dataset.observations[" << i << "] = " << dataset.observations[i] << std::endl;
         }
-    };
 
-    auto kernel_func = [&](cl::sycl::handler& cgh) {
-        cgh.parallel_for<class custom_var_c_kernel<_DataType, _ResultType>>(gws, kernel_parallel_for_func);
-    };
+        // https://docs.oneapi.com/versions/latest/onemkl/mkl-stats-central_moment.html
+        event = mkl_stats::central_moment(DPNP_QUEUE, dataset, mom2);
 
-    event = DPNP_QUEUE.submit(kernel_func);
+        event.wait();
+    }
+    else
+    {
+        _ResultType* mean = reinterpret_cast<_ResultType*>(dpnp_memory_alloc_c(1 * sizeof(_ResultType)));
+        custom_mean_c<_DataType, _ResultType>(array1, mean, shape, ndim, axis, naxis);
+        _ResultType mean_val = mean[0];
 
-    event.wait();
+        _ResultType* squared_deviations = reinterpret_cast<_ResultType*>(dpnp_memory_alloc_c(size * sizeof(_ResultType)));
 
-    custom_mean_c<_ResultType, _ResultType>(squared_deviations, mean, shape, ndim, axis, naxis);
-    mean_val = mean[0];
+        cl::sycl::range<1> gws(size);
+        auto kernel_parallel_for_func = [=](cl::sycl::id<1> global_id) {
+            size_t i = global_id[0]; /*for (size_t i = 0; i < size; ++i)*/
+            {
+                _ResultType deviation = static_cast<_ResultType>(array1[i]) - mean_val;
+                squared_deviations[i] = deviation * deviation;
+            }
+        };
 
-    result[0] = mean_val * size / static_cast<_ResultType>(size - ddof);
+        auto kernel_func = [&](cl::sycl::handler& cgh) {
+            cgh.parallel_for<class custom_var_c_kernel<_DataType, _ResultType>>(gws, kernel_parallel_for_func);
+        };
 
-    dpnp_memory_free_c(mean);
-    dpnp_memory_free_c(squared_deviations);
+        event = DPNP_QUEUE.submit(kernel_func);
 
-#if 0
-    std::cout << "var result " << res[0] << "\n";
-#endif
+        event.wait();
+
+        custom_mean_c<_ResultType, _ResultType>(squared_deviations, mom2, shape, ndim, axis, naxis);
+
+        dpnp_memory_free_c(mean);
+        dpnp_memory_free_c(squared_deviations);
+    }
+
+    std::cout << "mom2 = " << mom2[0] << std::endl;
+
+    result[0] = mom2[0] * size / static_cast<_ResultType>(size - ddof);
+
+    dpnp_memory_free_c(mom2);
 }
 
 template void custom_var_c<int, double>(
