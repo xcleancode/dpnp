@@ -49,6 +49,7 @@ from Cython.Compiler import Options as cython_options
 from utils.command_style import source_style
 from utils.command_clean import source_clean
 from utils.command_build_clib import custom_build_clib
+from utils.dpnp_build_utils import find_mathlib
 
 
 """
@@ -203,38 +204,7 @@ _omp_rpath = []
 """
 Get the math library environemnt
 """
-_mkl_include = None
-_mkl_libpath = None
-# TODO make it as a function in utils
-_conda_root = os.environ.get("CONDA_PREFIX", None)
-if _mkl_include is None and _mkl_libpath is None and _conda_root is not None:
-    _mkl_include_find = os.path.join(_conda_root, "include")
-    _mkl_libpath_find = os.path.join(_conda_root, "lib")
-    _required_header = os.path.join(_mkl_include_find, "mkl_blas_sycl.hpp")
-    _required_library = os.path.join(_mkl_libpath_find, "libmkl_sycl.so")
-
-    if (os.path.exists(_required_header) and os.path.exists(_required_library)):
-        print(
-            f"Intel DPNP: using $CONDA_PREFIX based math library. include={_mkl_include_find}, libpath={_mkl_libpath_find}")
-        _mkl_include = [_mkl_include_find]
-        _mkl_libpath = [_mkl_libpath_find]
-
-
-_mkl_root = os.environ.get("MKLROOT", None)
-if _mkl_include is None and _mkl_libpath is None and _mkl_root is not None:
-    _mkl_include_find = os.path.join(_mkl_root, "include")
-    _mkl_libpath_find = os.path.join(_mkl_root, "lib", "intel64")
-    _required_header = os.path.join(_mkl_include_find, "mkl_blas_sycl.hpp")
-    _required_library = os.path.join(_mkl_libpath_find, "libmkl_sycl.so")
-
-    if (os.path.exists(_required_header) and os.path.exists(_required_library)):
-        print(
-            f"Intel DPNP: using $MKLROOT based math library. include={_mkl_include_find}, libpath={_mkl_libpath_find}")
-        _mkl_include = [_mkl_include_find]
-        _mkl_libpath = [_mkl_libpath_find]
-
-if _mkl_include is None and _mkl_libpath is None:
-    raise EnvironmentError("Intel DPNP: Please install Intel OneAPI environment. MKLROOT is empty")
+_mkl_include, _mkl_libpath = find_mathlib(verbose=True)
 
 _project_cmplr_macro += [("MKL_ILP64", "1")]  # using 64bit integers in MKL interface (long)
 _mkl_libs = ["mkl_rt", "mkl_sycl", "mkl_intel_ilp64", "mkl_sequential",
