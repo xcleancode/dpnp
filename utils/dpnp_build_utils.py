@@ -95,14 +95,14 @@ def _find_cmplr_in_dpcpp_root(verbose=False):
 
     if 'linux' in sys.platform:
         rel_include_path = os.path.join('linux', 'include')
-        rel_libdir_path = os.path.join('linux', 'lib')
+        rel_libdir_path = os.path.join('compiler', 'latest', 'linux', 'lib')
     elif sys.platform in ['win32', 'cygwin']:
         rel_include_path = os.path.join('windows', 'include')
-        rel_libdir_path = os.path.join('windows', 'lib')
+        rel_libdir_path = os.path.join('compiler', 'latest', 'windows', 'lib')
     else:
         rel_include_path, rel_libdir_path = 'include', 'lib'
 
-    return find_library("DPCPPROOT", rel_header_paths, rel_lib_paths,
+    return find_library("ONEAPI_ROOT", rel_header_paths, rel_lib_paths,
                         rel_include_path=rel_include_path, rel_libdir_path=rel_libdir_path, verbose=verbose)
 
 
@@ -142,11 +142,10 @@ def _find_mathlib_in_conda_root(verbose=False):
     tuple(list(str), list(str))
         path to include directory, path to library directory
     """
-    conda_root_var = "PREFIX" if IS_CONDA_BUILD else "CONDA_PREFIX"
-    rel_header_paths = [os.path.join("oneapi", "mkl.hpp")]
+    rel_header_paths = ["mkl_blas_sycl.hpp"]
     rel_lib_paths = ["libmkl_sycl.so"]
 
-    return find_library(conda_root_var, rel_header_paths, rel_lib_paths, verbose=verbose)
+    return find_library("CONDA_PREFIX", rel_header_paths, rel_lib_paths, verbose=verbose)
 
 
 def _find_mathlib_in_mathlib_root(verbose=False):
@@ -215,14 +214,14 @@ def _find_omp_in_dpcpp_root(verbose=False):
 
     if 'linux' in sys.platform:
         rel_include_path = os.path.join('linux', 'compiler', 'include')
-        rel_libdir_path = os.path.join('linux', 'compiler', 'lib', 'intel64')
+        rel_libdir_path = os.path.join('compiler', 'latest', 'linux', 'compiler', 'lib', 'intel64')
     elif sys.platform in ['win32', 'cygwin']:
         rel_include_path = os.path.join('windows', 'compiler', 'include')
-        rel_libdir_path = os.path.join('windows', 'compiler', 'lib', 'intel64_win')
+        rel_libdir_path = os.path.join('compiler', 'latest', 'windows', 'compiler', 'lib', 'intel64_win')
     else:
         rel_include_path, rel_libdir_path = 'include', 'lib'
 
-    return find_library("DPCPPROOT", rel_header_paths, rel_lib_paths,
+    return find_library("ONEAPI_ROOT", rel_header_paths, rel_lib_paths,
                         rel_include_path=rel_include_path, rel_libdir_path=rel_libdir_path, verbose=verbose)
 
 

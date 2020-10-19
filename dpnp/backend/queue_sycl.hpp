@@ -32,7 +32,7 @@
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wreorder-ctor"
-#include <oneapi/mkl.hpp>
+#include <mkl_sycl.hpp>
 #pragma clang diagnostic pop
 
 #include <ctime>
