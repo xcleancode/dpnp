@@ -69,6 +69,33 @@ jobs:
       export CODECOV_TOKEN="1158b545-b00a-4a84-a6f9-2bc2c4265d8b"
       bash <(curl -s https://codecov.io/bash) -f coverage.xml
 
+- job: ubuntu_conda_build
+  displayName: Ubuntu 20.04 conda_build
+  pool:
+    vmImage: 'ubuntu-20.04 conda_build'
+  strategy:
+    matrix:
+      Python37:
+        python.version: '3.7'
+  steps:
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: '$(python.version)'
+    displayName: 'Use Python $(python.version)'
+  - bash: |
+      #echo ========================= Conda ENV ===========================
+      #conda config --env --add channels conda-forge
+      #echo ========================= update Conda ENV ===========================
+      #conda update -y --prefix /usr/share/miniconda anaconda
+      echo ========================= create Conda ENV ===========================
+      conda create -q -y -n dpnp$(python.version) python=$(python.version) conda-build -c intel -c defaults --override-channels
+      . /usr/share/miniconda/etc/profile.d/conda.sh
+      conda activate dpnp$(python.version)
+
+      echo ========================= build DPNP ==========================
+      conda-build -c dppy/label/dev -c intel -c defaults --override-channels ./conda-recipe/
+
+
 - job: ubuntu2004
   displayName: Ubuntu 20.04
   pool:
