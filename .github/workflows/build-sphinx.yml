@@ -28,9 +28,9 @@ jobs:
           sudo apt install --reinstall -y gcc-9 g++-9 libstdc++-9-dev
       - name: Install Intel OneAPI
         run: |
-          sudo apt-get install intel-oneapi-mkl                \
-                               intel-oneapi-mkl-devel          \
-                               intel-oneapi-dpcpp-cpp-compiler
+          sudo apt-get install intel-oneapi-mkl=2021.3.0-520  \
+                       intel-oneapi-mkl-devel=2021.3.0-520  \
+                       intel-oneapi-compiler-dpcpp-cpp=2021.3.0-3350
       # https://github.com/marketplace/actions/checkout
       - name: Install nvidia-cuda support drivers
         run: |
@@ -63,13 +63,11 @@ jobs:
       - name: Build library
         shell: bash -l {0}
         run: |
-          . /opt/intel/oneapi/setvars.sh
           . ./scripts/install_cmake_lin.sh
           ./0.build.sh
       - name: Build docs
         shell: bash -l {0}
         run: |
-          . /opt/intel/oneapi/setvars.sh
           ./0.builddoc.sh
         working-directory: doc
       # https://github.com/marketplace/actions/doxygen-action
