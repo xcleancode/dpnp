@@ -45,6 +45,7 @@ test:
         - tests
         - setup.cfg
     commands:
+      - python -c "import dpctl"
       - python -c "import dpnp"
       - conda list
       - pytest -s

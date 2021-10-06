@@ -99,7 +99,7 @@ jobs:
       conda activate dpnp$(python.version)
 
       echo ========================= build DPNP ==========================
-      export OCL_ICD_FILENAMES=libintelocl.so
+      #export OCL_ICD_FILENAMES=libintelocl.so
       conda-build --override-channels -c intel -c conda-forge -c dppy/label/dev ./conda-recipe/
 
 #- job: ubuntu2004_tests_external
