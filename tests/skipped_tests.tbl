@@ -192,6 +192,14 @@ tests/third_party/cupy/sorting_tests/test_sort.py::TestPartition_param_3_{extern
 tests/third_party/cupy/sorting_tests/test_sort.py::TestPartition_param_3_{external=True, length=20000}::test_partition_none_axis
 tests/third_party/cupy/sorting_tests/test_sort.py::TestPartition_param_3_{external=True, length=20000}::test_partition_sequence_kth
 
+tests/test_random.py::TestPermutationsTestShuffle::test_shuffle1[lambda x: dpnp.array([])]
+tests/test_random.py::TestPermutationsTestShuffle::test_shuffle1[lambda x: dpnp.astype(dpnp.asarray(x), dpnp.float32)]
+tests/test_random.py::TestPermutationsTestShuffle::test_shuffle1[lambda x: dpnp.asarray([[i, i] for i in x])]
+tests/test_random.py::TestPermutationsTestShuffle::test_shuffle1[lambda x: (dpnp.asarray([(i, i) for i in x], [("a", int), ("b", int)]).view(dpnp.recarray))]
+tests/test_random.py::TestPermutationsTestShuffle::test_shuffle1[lambda x: dpnp.asarray([(i, i) for i in x], [("a", object), ("b", dpnp.int32)])]]
+tests/test_random.py::TestPermutationsTestShuffle::test_shuffle1_fallback[lambda x: x]
+tests/test_random.py::TestPermutationsTestShuffle::test_shuffle1_fallback[lambda x: [(i, i) for i in x]]
+
 tests/test_fft.py::test_fft[float32]
 tests/test_fft.py::test_fft[float64]
 tests/test_fft.py::test_fft[int32]
