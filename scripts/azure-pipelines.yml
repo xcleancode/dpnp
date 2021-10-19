@@ -69,10 +69,10 @@ jobs:
       export CODECOV_TOKEN="1158b545-b00a-4a84-a6f9-2bc2c4265d8b"
       bash <(curl -s https://codecov.io/bash) -f coverage.xml
 
-- job: ubuntu2004
-  displayName: Ubuntu 20.04
+- job: conda_build_ubuntu2004
+  displayName: conda-build Ubuntu 20.04
   pool:
-    vmImage: 'ubuntu-20.04'
+    vmImage: 'conda-build ubuntu-20.04'
   strategy:
     matrix:
       Python38:
