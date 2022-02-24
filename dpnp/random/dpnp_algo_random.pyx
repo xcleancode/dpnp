@@ -795,7 +795,6 @@ cpdef utils.dpnp_descriptor dpnp_rng_multivariate_normal(utils.dpnp_descriptor m
     func(result.get_data(), mean_size, mean.get_data(), mean_size, cov.get_data(), cov_size, result.size)
 
     return result
- 
 
 cpdef utils.dpnp_descriptor dpnp_rng_negative_binomial(double a, double p, size):
     """
@@ -1103,6 +1102,9 @@ cpdef utils.dpnp_descriptor dpnp_rng_random(dims):
     cdef fptr_dpnp_rng_uniform_c_1out_t func = <fptr_dpnp_rng_uniform_c_1out_t > kernel_data.ptr
     # call FPTR function
     cdef c_dpctl.DPCTLSyclEventRef event_ref = func(q_ref, result.get_data(), low, high, result.size, NULL)
+
+    with nogil: c_dpctl.DPCTLEvent_WaitAndThrow(event_ref)
+    c_dpctl.DPCTLEvent_Delete(event_ref)
 
     return result
 

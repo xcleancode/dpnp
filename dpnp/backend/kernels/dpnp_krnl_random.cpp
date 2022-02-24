@@ -167,7 +167,7 @@ DPCTLSyclEventRef dpnp_rng_binomial_c(DPCTLSyclQueueRef q_ref,
 
         event_ref = dpnp_initval_c<_DataType>(q_ref, result, fill_value, size, dep_event_vec_ref);
         DPCTLEvent_Wait(event_ref);
-        dpnp_memory_free_c(fill_value);
+        dpnp_memory_free_c(q_ref, fill_value);
     }
     else
     {
@@ -598,7 +598,7 @@ DPCTLSyclEventRef dpnp_rng_gumbel_c(DPCTLSyclQueueRef q_ref,
 
         event_ref = dpnp_initval_c<_DataType>(q_ref, result, fill_value, size, dep_event_vec_ref);
         DPCTLEvent_Wait(event_ref);
-        dpnp_memory_free_c(fill_value);
+        dpnp_memory_free_c(q_ref, fill_value);
     }
     else
     {
@@ -674,7 +674,7 @@ DPCTLSyclEventRef dpnp_rng_hypergeometric_c(DPCTLSyclQueueRef q_ref,
 
         event_ref = dpnp_initval_c<_DataType>(q_ref, result, fill_value, size, dep_event_vec_ref);
         DPCTLEvent_Wait(event_ref);
-        dpnp_memory_free_c(fill_value);
+        dpnp_memory_free_c(q_ref, fill_value);
     }
     else
     {
@@ -882,7 +882,7 @@ DPCTLSyclEventRef dpnp_rng_lognormal_c(DPCTLSyclQueueRef q_ref,
 
         event_ref = dpnp_initval_c<_DataType>(q_ref, result, fill_value, size, dep_event_vec_ref);
         DPCTLEvent_Wait(event_ref);
-        dpnp_memory_free_c(fill_value);
+        dpnp_memory_free_c(q_ref, fill_value);
     }
     else
     {
@@ -2909,8 +2909,6 @@ void func_map_init_random(func_map_t& fmap)
 
     fmap[DPNPFuncName::DPNP_FN_RNG_SRAND][eft_DBL][eft_DBL] = {eft_DBL, (void*)dpnp_rng_srand_c};
 
-    // fmap[DPNPFuncName::DPNP_FN_RNG_SRAND_EXT][eft_DBL][eft_DBL] = {eft_DBL, (void*)dpnp_rng_srand_c};
-
     fmap[DPNPFuncName::DPNP_FN_RNG_STANDARD_CAUCHY][eft_DBL][eft_DBL] = {
         eft_DBL, (void*)dpnp_rng_standard_cauchy_default_c<double>};
 
@@ -2939,7 +2937,7 @@ void func_map_init_random(func_map_t& fmap)
         eft_DBL, (void*)dpnp_rng_standard_t_default_c<double>};
 
     fmap[DPNPFuncName::DPNP_FN_RNG_STANDARD_T_EXT][eft_DBL][eft_DBL] = {
-        eft_DBL, (void*)dpnp_rng_standard_normal_ext_c<double>};
+        eft_DBL, (void*)dpnp_rng_standard_t_ext_c<double>};
 
     fmap[DPNPFuncName::DPNP_FN_RNG_TRIANGULAR][eft_DBL][eft_DBL] = {eft_DBL,
                                                                     (void*)dpnp_rng_triangular_default_c<double>};
