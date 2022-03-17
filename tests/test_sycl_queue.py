@@ -129,6 +129,28 @@ def test_fft(type, device):
     assert result_queue.sycl_device == expected_queue.sycl_device
 
 
+@pytest.mark.parametrize("type", ['float32'])
+@pytest.mark.parametrize("shape", [(8,8)])
+@pytest.mark.parametrize("device",
+                         valid_devices,
+                         ids=[device.filter_string for device in valid_devices])
+def test_fft_rfft(type, shape, device):
+    np_data = numpy.arange(64, dtype=numpy.dtype(type)).reshape(shape)
+    dpnp_data = dpnp.array(np_data, device=device)
+
+    np_res = numpy.fft.rfft(np_data)
+    dpnp_res = dpnp.fft.rfft(dpnp_data)
+
+    numpy.testing.assert_allclose(dpnp_res, np_res, rtol=1e-4, atol=1e-7)
+    assert dpnp_res.dtype == np_res.dtype
+
+    expected_queue = dpnp_data.get_array().sycl_queue
+    result_queue = dpnp_res.get_array().sycl_queue
+
+    assert_sycl_queue_equal(result_queue, expected_queue)
+    assert result_queue.sycl_device == expected_queue.sycl_device
+
+
 @pytest.mark.parametrize("device",
                           valid_devices,
                           ids=[device.filter_string for device in valid_devices])
