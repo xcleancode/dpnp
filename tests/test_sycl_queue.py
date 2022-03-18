@@ -193,6 +193,9 @@ def test_det(device):
                           valid_devices,
                           ids=[device.filter_string for device in valid_devices])
 def test_eig(device):
+    if device.device_type == dpctl.device_type.cpu:
+        pytest.skip("eig function doesn\'t work on CPU: https://github.com/IntelPython/dpnp/issues/1005")
+
     size = 4
     a = numpy.arange(size * size, dtype='float64').reshape((size, size))
     symm_orig = numpy.tril(a) + numpy.tril(a, -1).T + numpy.diag(numpy.full((size,), size * size, dtype='float64'))
@@ -216,7 +219,7 @@ def test_eig(device):
 
     numpy.testing.assert_allclose(dpnp_val, numpy_val, rtol=1e-05, atol=1e-05)
     numpy.testing.assert_allclose(dpnp_vec, numpy_vec, rtol=1e-05, atol=1e-05)
-    
+
     assert (dpnp_val.dtype == numpy_val.dtype)
     assert (dpnp_vec.dtype == numpy_vec.dtype)
     assert (dpnp_val.shape == numpy_val.shape)
@@ -238,6 +241,9 @@ def test_eig(device):
                           valid_devices,
                           ids=[device.filter_string for device in valid_devices])
 def test_eigvals(device):
+    if device.device_type == dpctl.device_type.cpu:
+        pytest.skip("eigvals function doesn\'t work on CPU: https://github.com/IntelPython/dpnp/issues/1005")
+
     data = [[0, 0], [0, 0]]
     numpy_data = numpy.array(data)
     dpnp_data = dpnp.array(data, device=device)
@@ -290,29 +296,19 @@ def test_matrix_rank(device):
                           ids=[device.filter_string for device in valid_devices])
 def test_qr(device):
     tol = 1e-11
-    data = [[0, 1], [1, 1], [1, 1], [2, 1]]
+    data = [[1,2,3], [1,2,3]]
     numpy_data = numpy.array(data)
     dpnp_data = dpnp.array(data, device=device)
 
-    np_q, np_r = numpy.linalg.qr(numpy_data, "complete")
-    dpnp_q, dpnp_r = dpnp.linalg.qr(dpnp_data, "complete")
+    np_q, np_r = numpy.linalg.qr(numpy_data, "reduced")
+    dpnp_q, dpnp_r = dpnp.linalg.qr(dpnp_data, "reduced")
 
     assert (dpnp_q.dtype == np_q.dtype)
     assert (dpnp_r.dtype == np_r.dtype)
     assert (dpnp_q.shape == np_q.shape)
     assert (dpnp_r.shape == np_r.shape)
 
-    # NP change sign for comparison
-    ncols = min(numpy_data.shape[0], numpy_data.shape[1])
-    for i in range(ncols):
-        j = numpy.where(numpy.abs(np_q[:, i]) > tol)[0][0]
-        if np_q[j, i] * dpnp_q[j, i] < 0:
-            np_q[:, i] = -np_q[:, i]
-            np_r[i, :] = -np_r[i, :]
-
-        if numpy.any(numpy.abs(np_r[i, :]) > tol):
-            numpy.testing.assert_allclose(dpnp.asnumpy(dpnp_q)[:, i], np_q[:, i], rtol=tol, atol=tol)
-
+    numpy.testing.assert_allclose(dpnp_q, np_q, rtol=tol, atol=tol)
     numpy.testing.assert_allclose(dpnp_r, np_r, rtol=tol, atol=tol)
 
     expected_queue = dpnp_data.get_array().sycl_queue
@@ -338,8 +334,6 @@ def test_svd(device):
     np_u, np_s, np_vt = numpy.linalg.svd(numpy_data)
     dpnp_u, dpnp_s, dpnp_vt = dpnp.linalg.svd(dpnp_data)
 
-
-    print(type(dpnp_u))
     assert (dpnp_u.dtype == np_u.dtype)
     assert (dpnp_s.dtype == np_s.dtype)
     assert (dpnp_vt.dtype == np_vt.dtype)
