@@ -146,7 +146,7 @@ def fft2(x1, s=None, axes=(-2, -1), norm=None):
 
     x1_desc = dpnp.get_dpnp_descriptor(x1)
     if x1_desc:
-        if norm is not None:
+        if x1.ndim != 2:
             pass
         else:
             return fftn(x1, s, axes, norm)
@@ -187,6 +187,8 @@ def fftn(x1, s=None, axes=None, norm=None):
 
     x1_desc = dpnp.get_dpnp_descriptor(x1)
     if x1_desc:
+        norm_ = get_validated_norm(norm)
+
         if s is None:
             boundaries = tuple([x1_desc.shape[i] for i in range(x1_desc.ndim)])
         else:
@@ -197,8 +199,8 @@ def fftn(x1, s=None, axes=None, norm=None):
         else:
             axes_param = axes
 
-        if norm is not None:
-            pass
+        if axes is None:
+            return dpnp_fftn(x1_desc, boundaries, boundaries, axes_param, False, norm_.value).get_pyobj()
         else:
             x1_iter = x1
             iteration_list = list(range(len(axes_param)))
@@ -212,7 +214,7 @@ def fftn(x1, s=None, axes=None, norm=None):
 
                 x1_iter = fft(x1_iter, n=param_n, axis=param_axis, norm=norm)
 
-            return x1_iter
+                return x1_iter
 
     return call_origin(numpy.fft.fftn, x1, s, axes, norm)
 
@@ -409,7 +411,9 @@ def ifftn(x1, s=None, axes=None, norm=None):
     """
 
     x1_desc = dpnp.get_dpnp_descriptor(x1)
-    if x1_desc and 0:
+    if x1_desc:
+        norm_ = get_validated_norm(norm)
+
         if s is None:
             boundaries = tuple([x1_desc.shape[i] for i in range(x1_desc.ndim)])
         else:
@@ -420,8 +424,8 @@ def ifftn(x1, s=None, axes=None, norm=None):
         else:
             axes_param = axes
 
-        if norm is not None:
-            pass
+        if axes is None:
+            return dpnp_fftn(x1_desc, boundaries, boundaries, axes_param, True, norm_.value).get_pyobj()
         else:
             x1_iter = x1
             iteration_list = list(range(len(axes_param)))

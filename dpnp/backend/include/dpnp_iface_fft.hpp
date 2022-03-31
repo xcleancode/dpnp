@@ -121,13 +121,56 @@ INP_DLLEXPORT DPCTLSyclEventRef dpnp_fft_rfft_c(DPCTLSyclQueueRef q_ref,
                                                 const DPCTLEventVectorRef dep_event_vec_ref);
 
 template <typename _DataType_input, typename _DataType_output>
-INP_DLLEXPORT void dpnp_fft_fft_c(const void* array1_in,
-                                  void* result_out,
-                                  const shape_elem_type* input_shape,
-                                  const shape_elem_type* output_shape,
-                                  size_t shape_size,
-                                  long axis,
-                                  long input_boundarie,
-                                  size_t inverse,
-                                  const size_t norm);
+INP_DLLEXPORT void dpnp_fft_rfft_c(const void* array1_in,
+                                   void* result_out,
+                                   const shape_elem_type* input_shape,
+                                   const shape_elem_type* output_shape,
+                                   size_t shape_size,
+                                   long axis,
+                                   long input_boundarie,
+                                   size_t inverse,
+                                   const size_t norm);
+
+
+/**
+ * @ingroup BACKEND_FFT_API
+ * @brief N-dimensional discrete Fourier Transform.
+ *
+ * Compute the one-dimensional discrete Fourier Transform for real input.
+ *
+ * @param[in]  q_ref               Reference to SYCL queue.
+ * @param[in]  array1_in           Input array.
+ * @param[out] result_out          Output array.
+ * @param[in]  input_shape         Array with shape information for input array.
+ * @param[in]  result_shape        Array with shape information for result array.
+ * @param[in]  shape_size          Number of elements in @ref input_shape or @ref result_shape arrays.
+ * @param[in]  axes                Axes ID to compute by.
+ * @param[in]  input_boundaries    Limit number of elements for each dim.
+ * @param[in]  inverse             Using inverse algorithm.
+ * @param[in]  norm                Normalization mode. 0 - backward, 1 - forward, 2 - ortho.
+ * @param[in]  dep_event_vec_ref   Reference to vector of SYCL events.
+ */
+template <typename _DataType_input, typename _DataType_output>
+INP_DLLEXPORT DPCTLSyclEventRef dpnp_fft_fftn_c(DPCTLSyclQueueRef q_ref,
+                                                const void* array1_in,
+                                                void* result_out,
+                                                const shape_elem_type* input_shape,
+                                                const shape_elem_type* result_shape,
+                                                size_t shape_size,
+                                                const shape_elem_type* axes,
+                                                const shape_elem_type* input_boundaries,
+                                                size_t inverse,
+                                                const size_t norm,
+                                                const DPCTLEventVectorRef dep_event_vec_ref);
+
+template <typename _DataType_input, typename _DataType_output>
+INP_DLLEXPORT void dpnp_fft_fftn_c(const void* array1_in,
+                                   void* result_out,
+                                   const shape_elem_type* input_shape,
+                                   const shape_elem_type* output_shape,
+                                   size_t shape_size,
+                                   const shape_elem_type* axes,
+                                   const shape_elem_type* input_boundaries,
+                                   size_t inverse,
+                                   const size_t norm);
 #endif // BACKEND_IFACE_FFT_H

@@ -39,11 +39,14 @@ cimport dpnp.dpnp_utils as utils
 
 __all__ = [
     "dpnp_fft",
+    "dpnp_fftn",
     "dpnp_rfft"
 ]
 
 ctypedef void(*fptr_dpnp_fft_fft_t)(void *, void * , shape_elem_type * , shape_elem_type * ,
                                     size_t, long, long, size_t, size_t)
+ctypedef void(*fptr_dpnp_fft_fftn_t)(void *, void * , shape_elem_type * , shape_elem_type * ,
+                                     size_t, shape_elem_type *, shape_elem_type *, size_t, size_t)
 
 
 cpdef utils.dpnp_descriptor dpnp_fft(utils.dpnp_descriptor input,
@@ -102,5 +105,35 @@ cpdef utils.dpnp_descriptor dpnp_rfft(utils.dpnp_descriptor input,
     # call FPTR function
     func(input.get_data(), result.get_data(), input_shape.data(),
          output_shape.data(), input_shape.size(), axis_norm, input_boundarie, inverse, norm)
+
+    return result
+
+
+cpdef utils.dpnp_descriptor dpnp_fftn(utils.dpnp_descriptor input,
+                                      shape_type_c input_boundaries,
+                                      shape_type_c output_boundaries,
+                                      shape_type_c axes,
+                                      size_t inverse,
+                                      size_t norm):
+
+    cdef shape_type_c input_shape = input.shape
+    cdef shape_type_c output_shape = output_boundaries
+
+    cdef shape_type_c axes_norm = utils.normalize_axis(axes, input_shape.size())
+    #output_shape[axis_norm] = output_boundarie
+
+    # convert string type names (dtype) to C enum DPNPFuncType
+    cdef DPNPFuncType param1_type = dpnp_dtype_to_DPNPFuncType(input.dtype)
+
+    # get the FPTR data structure
+    cdef DPNPFuncData kernel_data = get_dpnp_function_ptr(DPNP_FN_FFT_FFTN, param1_type, param1_type)
+
+    # ceate result array with type given by FPTR data
+    cdef utils.dpnp_descriptor result = utils.create_output_descriptor(output_shape, kernel_data.return_type, None)
+
+    cdef fptr_dpnp_fft_fftn_t func = <fptr_dpnp_fft_fftn_t > kernel_data.ptr
+    # call FPTR function
+    func(input.get_data(), result.get_data(), input_shape.data(),
+         output_shape.data(), input_shape.size(), axes_norm.data(), input_boundaries.data(), inverse, norm)
 
     return result

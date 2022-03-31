@@ -61,3 +61,31 @@ def test_fft_rfft(type, shape):
 
     numpy.testing.assert_allclose(dpnp_res, np_res, rtol=1e-4, atol=1e-7)
     assert dpnp_res.dtype == np_res.dtype
+
+
+@pytest.mark.parametrize("type", ['complex128', 'complex64', 'float32', 'float64', 'int32', 'int64'])
+@pytest.mark.parametrize("shape", [(8, 8), (4, 16), (4, 4, 4), (2, 4, 4, 2)])
+@pytest.mark.parametrize("norm", [None, 'forward', 'ortho'])
+def test_fft_fftn(type, shape, norm):
+    np_data = numpy.arange(64, dtype=numpy.dtype(type)).reshape(shape)
+    dpnp_data = dpnp.arange(64, dtype=numpy.dtype(type)).reshape(shape)
+
+    np_res = numpy.fft.fftn(np_data, norm=norm)
+    dpnp_res = dpnp.fft.fftn(dpnp_data, norm=norm)
+
+    numpy.testing.assert_allclose(dpnp_res, np_res, rtol=1e-4, atol=1e-7)
+    assert dpnp_res.dtype == np_res.dtype
+
+
+@pytest.mark.parametrize("type", ['complex128', 'complex64', 'float32', 'float64', 'int32', 'int64'])
+@pytest.mark.parametrize("shape", [(2, 4), (4, 16), (4, 4, 4), (2, 4, 4, 2)])
+@pytest.mark.parametrize("norm", [None, 'forward', 'ortho'])
+def test_fft_ifftn(type, shape, norm):
+    np_data = numpy.arange(64, dtype=numpy.dtype(type)).reshape(shape)
+    dpnp_data = dpnp.arange(64, dtype=numpy.dtype(type)).reshape(shape)
+
+    np_res = numpy.fft.ifftn(np_data, norm=norm)
+    dpnp_res = dpnp.fft.ifftn(dpnp_data, norm=norm)
+
+    numpy.testing.assert_allclose(dpnp_res, np_res, rtol=1e-4, atol=1e-7)
+    assert dpnp_res.dtype == np_res.dtype

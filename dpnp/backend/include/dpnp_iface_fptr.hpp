@@ -166,6 +166,8 @@ enum class DPNPFuncName : size_t
     DPNP_FN_FABS_EXT,                     /**< Used in numpy.fabs() impl, requires extra parameters */
     DPNP_FN_FFT_FFT,                      /**< Used in numpy.fft.fft() impl  */
     DPNP_FN_FFT_FFT_EXT,                  /**< Used in numpy.fft.fft() impl, requires extra parameters */
+    DPNP_FN_FFT_FFTN,                     /**< Used in numpy.fft.fftn() impl  */
+    DPNP_FN_FFT_FFTN_EXT,                 /**< Used in numpy.fft.fftn() impl, requires extra parameters */
     DPNP_FN_FFT_RFFT,                     /**< Used in numpy.fft.rfft() impl  */
     DPNP_FN_FFT_RFFT_EXT,                 /**< Used in numpy.fft.rfft() impl, requires extra parameters */
     DPNP_FN_FILL_DIAGONAL,                /**< Used in numpy.fill_diagonal() impl  */
