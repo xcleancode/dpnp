@@ -693,7 +693,8 @@ void dpnp_fft_fftn_mathlib_real_to_cmplx_c(DPCTLSyclQueueRef q_ref,
                                            const size_t result_size,
                                            _Descriptor_type& desc,
                                            size_t inverse,
-                                           const size_t norm)
+                                           const size_t norm,
+                                           const size_t real)
 {
     if (!shape_size)
     {
@@ -741,6 +742,10 @@ void dpnp_fft_fftn_mathlib_real_to_cmplx_c(DPCTLSyclQueueRef q_ref,
     sycl::event event;
     event = mkl_dft::compute_forward(desc, array_1, result);
     event.wait();
+
+    if (real) {
+        return;
+    }
 
     size_t n_conj = result_shift % 2 == 0 ? result_shift / 2 - 1 : result_shift / 2;
 
@@ -825,7 +830,7 @@ DPCTLSyclEventRef dpnp_fft_fftn_c(DPCTLSyclQueueRef q_ref,
             desc_dp_real_t desc(dimensions);
 
             dpnp_fft_fftn_mathlib_real_to_cmplx_c<_DataType_input, double, desc_dp_real_t>(
-                q_ref, array1_in, result_out, input_shape, result_shape, shape_size, input_size, result_size, desc, inverse, norm);
+                q_ref, array1_in, result_out, input_shape, result_shape, shape_size, input_size, result_size, desc, inverse, norm, 0);
         }
         /* real-to-complex, single precision */
         else if constexpr (std::is_same<_DataType_input, float>::value &&
@@ -833,7 +838,7 @@ DPCTLSyclEventRef dpnp_fft_fftn_c(DPCTLSyclQueueRef q_ref,
         {
             desc_sp_real_t desc(dimensions); // try: 2 * result_size
             dpnp_fft_fftn_mathlib_real_to_cmplx_c<_DataType_input, float, desc_sp_real_t>(
-                q_ref, array1_in, result_out, input_shape, result_shape, shape_size, input_size, result_size, desc, inverse, norm);
+                q_ref, array1_in, result_out, input_shape, result_shape, shape_size, input_size, result_size, desc, inverse, norm, 0);
         }
         else if constexpr (std::is_same<_DataType_input, int32_t>::value ||
                            std::is_same<_DataType_input, int64_t>::value)
@@ -850,7 +855,7 @@ DPCTLSyclEventRef dpnp_fft_fftn_c(DPCTLSyclQueueRef q_ref,
 
             desc_dp_real_t desc(dimensions);
             dpnp_fft_fftn_mathlib_real_to_cmplx_c<double, double, desc_dp_real_t>(
-                q_ref, array1_copy, result_out, input_shape, result_shape, shape_size, input_size, result_size, desc, inverse, norm);
+                q_ref, array1_copy, result_out, input_shape, result_shape, shape_size, input_size, result_size, desc, inverse, norm, 0);
 
             dpnp_memory_free_c(q_ref, array1_copy);
             dpnp_memory_free_c(q_ref, copy_strides);
@@ -912,6 +917,7 @@ DPCTLSyclEventRef (*dpnp_fft_fftn_ext_c)(DPCTLSyclQueueRef,
                                          const size_t,
                                          const DPCTLEventVectorRef) = dpnp_fft_fftn_c<_DataType_input, _DataType_output>;
 
+
 void func_map_init_fft_func(func_map_t& fmap)
 {
     fmap[DPNPFuncName::DPNP_FN_FFT_FFT][eft_INT][eft_INT] = {
@@ -926,14 +932,6 @@ void func_map_init_fft_func(func_map_t& fmap)
         eft_C64, (void*)dpnp_fft_fft_default_c<std::complex<float>, std::complex<float>>};
     fmap[DPNPFuncName::DPNP_FN_FFT_FFT][eft_C128][eft_C128] = {
         eft_C128, (void*)dpnp_fft_fft_default_c<std::complex<double>, std::complex<double>>};
-    fmap[DPNPFuncName::DPNP_FN_FFT_RFFT][eft_INT][eft_INT] = {
-        eft_C128, (void*)dpnp_fft_rfft_default_c<int32_t, std::complex<double>>};
-    fmap[DPNPFuncName::DPNP_FN_FFT_RFFT][eft_LNG][eft_LNG] = {
-        eft_C128, (void*)dpnp_fft_rfft_default_c<int64_t, std::complex<double>>};
-    fmap[DPNPFuncName::DPNP_FN_FFT_RFFT][eft_FLT][eft_FLT] = {
-        eft_C64, (void*)dpnp_fft_rfft_default_c<float, std::complex<float>>};
-    fmap[DPNPFuncName::DPNP_FN_FFT_RFFT][eft_DBL][eft_DBL] = {
-        eft_C128, (void*)dpnp_fft_rfft_default_c<double, std::complex<double>>};
     fmap[DPNPFuncName::DPNP_FN_FFT_FFTN][eft_INT][eft_INT] = {
         eft_C128, (void*)dpnp_fft_fftn_default_c<int32_t, std::complex<double>>};
     fmap[DPNPFuncName::DPNP_FN_FFT_FFTN][eft_LNG][eft_LNG] = {
@@ -946,5 +944,13 @@ void func_map_init_fft_func(func_map_t& fmap)
         eft_C64, (void*)dpnp_fft_fftn_default_c<std::complex<float>, std::complex<float>>};
     fmap[DPNPFuncName::DPNP_FN_FFT_FFTN][eft_C128][eft_C128] = {
         eft_C128, (void*)dpnp_fft_fftn_default_c<std::complex<double>, std::complex<double>>};
+    fmap[DPNPFuncName::DPNP_FN_FFT_RFFT][eft_INT][eft_INT] = {
+        eft_C128, (void*)dpnp_fft_rfft_default_c<int32_t, std::complex<double>>};
+    fmap[DPNPFuncName::DPNP_FN_FFT_RFFT][eft_LNG][eft_LNG] = {
+        eft_C128, (void*)dpnp_fft_rfft_default_c<int64_t, std::complex<double>>};
+    fmap[DPNPFuncName::DPNP_FN_FFT_RFFT][eft_FLT][eft_FLT] = {
+        eft_C64, (void*)dpnp_fft_rfft_default_c<float, std::complex<float>>};
+    fmap[DPNPFuncName::DPNP_FN_FFT_RFFT][eft_DBL][eft_DBL] = {
+        eft_C128, (void*)dpnp_fft_rfft_default_c<double, std::complex<double>>};
     return;
 }
