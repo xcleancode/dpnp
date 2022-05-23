@@ -391,7 +391,7 @@ def qr(x1, mode='reduced'):
     Limitations
     -----------
     Input array is supported as :obj:`dpnp.ndarray`.
-    Parameter mode='complete' is supported.
+    Parameter mode='reduced' is supported.
 
     """
 

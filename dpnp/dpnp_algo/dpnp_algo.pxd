@@ -396,24 +396,59 @@ cdef extern from "dpnp_iface.hpp":
 
 
 # C function pointer to the C library template functions
-ctypedef void(*fptr_1out_t)(void * , size_t)
-ctypedef void(*fptr_1in_1out_t)(void *, void * , size_t)
-ctypedef void(*fptr_1in_1out_strides_t)(void *, const size_t, const size_t,
-                                        const shape_elem_type * , const shape_elem_type * ,
-                                        void *, const size_t, const size_t,
-                                        const shape_elem_type * , const shape_elem_type * ,
-                                        const long * )
-ctypedef void(*fptr_2in_1out_t)(void * , const void * , const size_t, const shape_elem_type * , const size_t,
-                                const void *, const size_t, const shape_elem_type * , const size_t, const long * )
-ctypedef void(*fptr_2in_1out_strides_t)(void *, const size_t, const size_t,
-                                        const shape_elem_type * , const shape_elem_type * ,
-                                        void *, const size_t, const size_t,
-                                        const shape_elem_type * , const shape_elem_type * ,
-                                        void *, const size_t, const size_t,
-                                        const shape_elem_type * , const shape_elem_type * ,
-                                        const long * )
+ctypedef c_dpctl.DPCTLSyclEventRef(*fptr_1out_t)(c_dpctl.DPCTLSyclQueueRef,
+                                                 void * , size_t,
+                                                 const c_dpctl.DPCTLEventVectorRef)
+ctypedef c_dpctl.DPCTLSyclEventRef(*fptr_1in_1out_t)(c_dpctl.DPCTLSyclQueueRef,
+                                                     void *, void * , size_t,
+                                                     const c_dpctl.DPCTLEventVectorRef)
+ctypedef c_dpctl.DPCTLSyclEventRef(*fptr_1in_1out_strides_t)(c_dpctl.DPCTLSyclQueueRef,
+                                                             void *, const size_t, const size_t,
+                                                             const shape_elem_type * , const shape_elem_type * ,
+                                                             void *, const size_t, const size_t,
+                                                             const shape_elem_type * , const shape_elem_type * ,
+                                                             const long * ,
+                                                             const c_dpctl.DPCTLEventVectorRef)
+ctypedef c_dpctl.DPCTLSyclEventRef(*fptr_2in_1out_t)(c_dpctl.DPCTLSyclQueueRef,
+                                                     void * ,
+                                                     const void * ,
+                                                     const size_t,
+                                                     const shape_elem_type * ,
+                                                     const size_t,
+                                                     const void *,
+                                                     const size_t,
+                                                     const shape_elem_type * ,
+                                                     const size_t,
+                                                     const long * ,
+                                                     const c_dpctl.DPCTLEventVectorRef)
+ctypedef c_dpctl.DPCTLSyclEventRef(*fptr_2in_1out_strides_t)(c_dpctl.DPCTLSyclQueueRef,
+                                                             void *,
+                                                             const size_t,
+                                                             const size_t,
+                                                             const shape_elem_type * ,
+                                                             const shape_elem_type * ,
+                                                             void *,
+                                                             const size_t,
+                                                             const size_t,
+                                                             const shape_elem_type * ,
+                                                             const shape_elem_type * ,
+                                                             void *,
+                                                             const size_t, const size_t,
+                                                             const shape_elem_type * ,
+                                                             const shape_elem_type * ,
+                                                             const long * ,
+                                                             const c_dpctl.DPCTLEventVectorRef)
 ctypedef void(*fptr_blas_gemm_2in_1out_t)(void *, void * , void * , size_t, size_t, size_t)
-ctypedef void(*dpnp_reduction_c_t)(void *, const void * , const shape_elem_type*, const size_t, const shape_elem_type*, const size_t, const void * , const long*)
+ctypedef c_dpctl.DPCTLSyclEventRef(*dpnp_reduction_c_t)(c_dpctl.DPCTLSyclQueueRef,
+                                                        void *,
+                                                        const void * ,
+                                                        const shape_elem_type*,
+                                                        const size_t,
+                                                        const shape_elem_type*,
+                                                        const size_t,
+                                                        const void * ,
+                                                        const long*,
+                                                        const c_dpctl.DPCTLEventVectorRef)
 
 cpdef dpnp_descriptor dpnp_astype(dpnp_descriptor x1, dtype)
 cpdef dpnp_descriptor dpnp_flatten(dpnp_descriptor x1)
