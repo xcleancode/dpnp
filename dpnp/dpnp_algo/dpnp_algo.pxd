@@ -24,6 +24,9 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 # THE POSSIBILITY OF SUCH DAMAGE.
 # *****************************************************************************
+cimport dpctl as c_dpctl
+
+cimport dpctl as c_dpctl
 
 cimport dpctl as c_dpctl
 
@@ -142,6 +145,7 @@ cdef extern from "dpnp_iface_fptr.hpp" namespace "DPNPFuncName":  # need this na
         DPNP_FN_FABS
         DPNP_FN_FABS_EXT
         DPNP_FN_FFT_FFT
+        DPNP_FN_FFT_FFT_EXT
         DPNP_FN_FFT_RFFT
         DPNP_FN_FFT_FFT_EXT
         DPNP_FN_FILL_DIAGONAL
