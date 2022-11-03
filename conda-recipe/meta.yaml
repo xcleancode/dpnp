@@ -12,12 +12,12 @@ requirements:
       - cython
       - cmake >=3.19
       - dpctl >=0.13
-      - mkl-devel-dpcpp {{ environ.get('MKL_VER', '>=2021.1.1') }}
+      - mkl-devel-dpcpp
       - tbb-devel
       - wheel
     build:
       - {{ compiler('cxx') }}
-      - {{ compiler('dpcpp') }}  >=2022.1  # [not osx]
+      - {{ compiler('dpcpp') }}
     run:
       - python
       - dpctl >=0.13
